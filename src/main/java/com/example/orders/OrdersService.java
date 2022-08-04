@@ -3,10 +3,10 @@ package com.example.orders;
 import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.IntStream;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -21,9 +21,9 @@ public class OrdersService {
 	private final OrdersRepository ordersRepository;
 	private final ProductsService productsService;
 
-	@RequestMapping("/order")
+	@RequestMapping(value = "/random", method = RequestMethod.POST)
 	@Transactional
-	public long order(int itemsCount) throws InterruptedException, ExecutionException {
+	public long placeOrder(int itemsCount) throws InterruptedException, ExecutionException {
 		long orderId = saveOrder();
 		saveItems(orderId, itemsCount);
 		return orderId;
@@ -43,31 +43,30 @@ public class OrdersService {
 						productId -> ordersRepository.saveItem(orderId, productId));
 	}
 
-	@RequestMapping("/simulate")
-	public void simulate(int visitors, float conversionRate, int productViewsPerVisitor, int maxWaitingTime,
+	@RequestMapping(value = "/random/bulk", method = RequestMethod.POST)
+	public void simulate(int visitors, float conversionRate, int productViewsPerVisitor, int maxWaitingTimeSeconds,
 			int minItemsPerOrder,
 			int maxItemsPerOrder) {
 
-		long startTime = System.currentTimeMillis();
-		IntStream.range(0, visitors)
-				.forEach(i -> {
-					try {
-						productsService.find(productViewsPerVisitor);
-						long endTime = System.currentTimeMillis();
-						long waitInSeconds = (endTime - startTime) / 1000;
-
-						if (waitInSeconds <= maxWaitingTime) {
-							if (random.nextFloat(0, 1) <= conversionRate) {
-								int itemsCount = random.nextInt(minItemsPerOrder, maxItemsPerOrder + 1);
-								order(itemsCount);
-							}
+		for (int i = 0; i < visitors; i++) {
+			long startTime = System.currentTimeMillis();
+			productsService.find(productViewsPerVisitor).thenAccept(products -> {
+				try {
+					long endTime = System.currentTimeMillis();
+					long waitInSeconds = (endTime - startTime) / 1000;
+					if (waitInSeconds <= maxWaitingTimeSeconds) {
+						if (random.nextFloat(0, 1) <= conversionRate) {
+							int itemsCount = random.nextInt(minItemsPerOrder, maxItemsPerOrder + 1);
+							placeOrder(itemsCount);
 						}
-					} catch (InterruptedException | ExecutionException ignored) {
 					}
-				});
+				} catch (InterruptedException | ExecutionException ignored) {
+				}
+			});
+		}
 	}
 
-	@RequestMapping("/deleteAll")
+	@RequestMapping("/deleteAll") // TODO: fix HTTP methods here and elsewhere
 	public void deleteAll() {
 		ordersRepository.deleteAll();
 	}

@@ -2,12 +2,12 @@ package com.example.orders;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.javafaker.Faker;
@@ -21,7 +21,7 @@ public class ProductsService {
 
 	private final ProductsRepository productsRepository;
 
-	@RequestMapping("/generate")
+	@RequestMapping(value = "/demo", method = RequestMethod.POST)
 	public void generate(int count, int minPrice, int maxPrice) {
 		IntStream.range(0, count)
 				.parallel()
@@ -34,11 +34,11 @@ public class ProductsService {
 				});
 	}
 
-	@RequestMapping("/find")
+	@RequestMapping(value = "/random", method = RequestMethod.GET)
 	@Async
-	public Future<List<Product>> find(int productsCount) {
-		List<Product> products = productsRepository.findRandomProducts(productsCount);
-		return new AsyncResult<List<Product>>(products);
+	public CompletableFuture<List<Product>> find(int count) {
+		List<Product> products = productsRepository.findRandomProducts(count);
+		return CompletableFuture.completedFuture(products);
 	}
 
 }
