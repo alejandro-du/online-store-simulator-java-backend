@@ -29,7 +29,7 @@ public class ProductsService {
 				.parallel()
 				.forEach(i -> {
 					Faker faker = new Faker();
-					String name = faker.book().title() + faker.idNumber().toString();
+					String name = faker.book().title() + " "  + faker.number().numberBetween(Integer.MIN_VALUE, Integer.MAX_VALUE);
 					String description = faker.lorem().characters(500, 5000);
 					BigDecimal cost = new BigDecimal(faker.random().nextInt(minPrice, maxPrice));
 					productsRepository.save(name, description, cost);

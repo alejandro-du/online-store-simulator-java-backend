@@ -1,11 +1,20 @@
+### Delete all orders
 DELETE http://localhost:8080/api/orders/
-###
+
+### Delete all products
 DELETE http://localhost:8080/api/products/
-###
+
+### Generate random products
 POST http://localhost:8080/api/products/demo?count=1000&minPrice=50&maxPrice=1000
-###
+
+### Get random products
 GET http://localhost:8080/api/products/random?count=10
-###
-POST http://localhost:8080/api/orders/random?itemsCount=2
-###
-POST http://localhost:8080/api/orders/random/bulk?visitors=100&conversionRate=0.1&productViewsPerVisitor=12&maxWaitingTimeSeconds=30&minItemsPerOrder=1&maxItemsPerOrder=3
+
+### Generate 1 random order with 2 products
+POST http://localhost:8080/api/orders/random?visitors=1&conversionRate=1&productViewsPerVisitor=12&maxWaitingTimeSeconds=30&minItemsPerOrder=2&maxItemsPerOrder=2
+
+### Generate random orders
+POST http://localhost:8080/api/orders/random?visitors=100&conversionRate=0.1&productViewsPerVisitor=12&maxWaitingTimeSeconds=30&minItemsPerOrder=1&maxItemsPerOrder=3
+
+### Black Friday!
+POST http://localhost:8080/api/orders/random?visitors=10000&conversionRate=0.1&productViewsPerVisitor=20&maxWaitingTimeSeconds=30&minItemsPerOrder=1&maxItemsPerOrder=5
