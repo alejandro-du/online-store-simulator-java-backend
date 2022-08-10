@@ -1,11 +1,12 @@
 package com.example.orders;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,24 +25,12 @@ public class OrdersService {
 
 	@PostMapping("/random")
 	@Transactional
-	public long placeOrder(int itemsCount) throws InterruptedException, ExecutionException {
-		long orderId = saveOrder();
-		saveItems(orderId, itemsCount);
-		return orderId;
-	}
-
-	private long saveOrder() {
-		Order order = new Order();
-		order.setTime(LocalDateTime.now());
-		ordersRepository.save(order);
-		return order.getId();
-	}
-
-	private void saveItems(long orderId, int itemsCount) throws InterruptedException, ExecutionException {
-		productsService.find(itemsCount).get().stream()
-				.map(Product::getId)
-				.forEach(
-						productId -> ordersRepository.saveItem(orderId, productId));
+	public Order placeOrder(int itemsCount) throws InterruptedException, ExecutionException {
+		List<Product> items = productsService.find(itemsCount).get();
+		Order newOrder = new Order(null, LocalDateTime.now(), items);
+		ordersRepository.save(newOrder);
+		ordersRepository.saveItems(newOrder.getId(), newOrder.getItems());
+		return newOrder;
 	}
 
 	@PostMapping("/random/bulk")
@@ -67,7 +56,7 @@ public class OrdersService {
 		}
 	}
 
-	@GetMapping("/deleteAll")
+	@DeleteMapping("/")
 	public void deleteAll() {
 		ordersRepository.deleteAll();
 	}

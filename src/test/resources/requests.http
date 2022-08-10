@@ -1,4 +1,8 @@
-POST http://localhost:8080/api/products/demo?count=10&minPrice=50&maxPrice=1000
+DELETE http://localhost:8080/api/orders/
+###
+DELETE http://localhost:8080/api/products/
+###
+POST http://localhost:8080/api/products/demo?count=1000&minPrice=50&maxPrice=1000
 ###
 GET http://localhost:8080/api/products/random?count=10
 ###

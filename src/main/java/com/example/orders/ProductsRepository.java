@@ -3,6 +3,7 @@ package com.example.orders;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -14,7 +15,7 @@ public interface ProductsRepository {
 			INSERT INTO product(name, description, cost)
 			VALUES(#{name}, #{description}, #{cost})
 			""")
-	void saveProduct(String name, String description, BigDecimal cost);
+	void save(String name, String description, BigDecimal cost);
 
 	@Select("""
 			SELECT id, name, cost
@@ -22,6 +23,9 @@ public interface ProductsRepository {
 			ORDER BY RAND()
 			LIMIT #{productsCount}
 			""")
-	List<Product> findRandomProducts(int productsCount);
+	List<Product> findRandom(int productsCount);
+
+	@Delete("DELETE FROM product")
+	void deleteAll();
 
 }

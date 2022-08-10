@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,15 +32,20 @@ public class ProductsService {
 					String name = faker.book().title() + faker.idNumber().toString();
 					String description = faker.lorem().characters(500, 5000);
 					BigDecimal cost = new BigDecimal(faker.random().nextInt(minPrice, maxPrice));
-					productsRepository.saveProduct(name, description, cost);
+					productsRepository.save(name, description, cost);
 				});
 	}
 
 	@GetMapping("/random")
 	@Async
 	public CompletableFuture<List<Product>> find(int count) {
-		List<Product> products = productsRepository.findRandomProducts(count);
+		List<Product> products = productsRepository.findRandom(count);
 		return CompletableFuture.completedFuture(products);
+	}
+
+	@DeleteMapping("/")
+	public void deleteAll() {
+		productsRepository.deleteAll();
 	}
 
 }
