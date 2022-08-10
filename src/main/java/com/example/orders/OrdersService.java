@@ -67,7 +67,7 @@ public class OrdersService {
 		}
 	}
 
-	@GetMapping("/deleteAll") // TODO: fix HTTP methods here and elsewhere
+	@GetMapping("/deleteAll")
 	public void deleteAll() {
 		ordersRepository.deleteAll();
 	}
