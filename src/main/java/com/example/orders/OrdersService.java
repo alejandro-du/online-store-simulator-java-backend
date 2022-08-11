@@ -1,19 +1,24 @@
 package com.example.orders;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/orders")
+@CrossOrigin(originPatterns = "*", methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE })
 @RequiredArgsConstructor
 public class OrdersService {
 
@@ -53,6 +58,11 @@ public class OrdersService {
 	@DeleteMapping("/")
 	public void deleteAll() {
 		ordersRepository.deleteAll();
+	}
+
+	@GetMapping("/total")
+	public BigDecimal getTotalSales(String start, String end) {
+		return ordersRepository.getTotal(start, end);
 	}
 
 }
