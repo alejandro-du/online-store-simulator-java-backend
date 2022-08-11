@@ -28,23 +28,32 @@ public class OrdersService {
 	private final ProductsService productsService;
 
 	@PostMapping("/random")
-	public void simulate(int visitors, float conversionRate, int productViewsPerVisitor, int maxWaitingTimeSeconds,
+	public BigDecimal simulate(int visitors, float conversionRate, int productViewsPerVisitor,
+			int maxWaitingTimeSeconds,
 			int minItemsPerOrder,
 			int maxItemsPerOrder) {
 
+		BigDecimal total = BigDecimal.ZERO;
+
+		if (minItemsPerOrder > maxItemsPerOrder || productViewsPerVisitor < minItemsPerOrder) {
+			return total;
+		}
+
 		for (int i = 0; i < visitors; i++) {
 			long startTime = System.currentTimeMillis();
-			productsService.find(productViewsPerVisitor).thenAccept(items -> {
-				long endTime = System.currentTimeMillis();
-				long waitInSeconds = (endTime - startTime) / 1000;
-				if (waitInSeconds <= maxWaitingTimeSeconds) {
-					if (random.nextFloat(0, 1) <= conversionRate) {
-						int itemsCount = random.nextInt(minItemsPerOrder, maxItemsPerOrder + 1);
-						placeOrder(items.subList(items.size() - itemsCount, items.size()));
-					}
+			List<Product> items = productsService.find(productViewsPerVisitor);
+			long endTime = System.currentTimeMillis();
+			long waitInSeconds = (endTime - startTime) / 1000;
+			if (waitInSeconds <= maxWaitingTimeSeconds) {
+				if (random.nextFloat(0, 1) <= conversionRate) {
+					int itemsCount = random.nextInt(minItemsPerOrder, maxItemsPerOrder + 1);
+					Order order = placeOrder(items.subList(items.size() - itemsCount, items.size()));
+					total = total.add(order.getTotal());
 				}
-			});
+			}
 		}
+
+		return total;
 	}
 
 	@Transactional

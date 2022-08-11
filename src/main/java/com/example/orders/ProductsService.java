@@ -2,10 +2,8 @@ package com.example.orders;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,10 +38,8 @@ public class ProductsService {
 	}
 
 	@GetMapping("/random")
-	@Async
-	public CompletableFuture<List<Product>> find(int count) {
-		List<Product> products = productsRepository.findRandom(count);
-		return CompletableFuture.completedFuture(products);
+	public List<Product> find(int count) {
+		return productsRepository.findRandom(count);
 	}
 
 	@DeleteMapping("/")
