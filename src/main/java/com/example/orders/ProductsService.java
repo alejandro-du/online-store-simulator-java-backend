@@ -1,7 +1,6 @@
 package com.example.orders;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.stream.IntStream;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -26,11 +25,14 @@ public class ProductsService {
 
 	@PostMapping("/demo")
 	public void generate(int count, int minPrice, int maxPrice) {
+		// TODO: validate input
+		
 		IntStream.range(0, count)
 				.parallel()
 				.forEach(i -> {
 					Faker faker = new Faker();
-					String name = faker.book().title() + " "  + faker.number().numberBetween(Integer.MIN_VALUE, Integer.MAX_VALUE);
+					String name = faker.book().title() + " "
+							+ faker.number().numberBetween(Integer.MIN_VALUE, Integer.MAX_VALUE);
 					String description = faker.lorem().characters(500, 5000);
 					BigDecimal cost = new BigDecimal(faker.random().nextInt(minPrice, maxPrice));
 					productsRepository.save(name, description, cost);
@@ -38,8 +40,8 @@ public class ProductsService {
 	}
 
 	@GetMapping("/random")
-	public List<Product> find(int count) {
-		return productsRepository.findRandom(count);
+	public Product find() {
+		return productsRepository.findRandom();
 	}
 
 	@DeleteMapping("/")

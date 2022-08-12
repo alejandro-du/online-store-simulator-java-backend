@@ -1,7 +1,6 @@
 package com.example.orders;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -21,9 +20,9 @@ public interface ProductsRepository {
 			SELECT id, name, cost
 			FROM product
 			ORDER BY RAND()
-			LIMIT #{productsCount}
+			LIMIT 1
 			""")
-	List<Product> findRandom(int productsCount);
+	Product findRandom();
 
 	@Delete("DELETE FROM product")
 	void deleteAll();
