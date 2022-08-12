@@ -35,39 +35,41 @@ public class OrdersService {
 	@Data
 	public static class SimulationSummary {
 		private BigDecimal salesTotal = BigDecimal.ZERO;
-		private int orderCount;
-		private int itemCount;
-		private int disappointedVisitors;
-		private long processingTimeMillis;
+		private int orderCount = 0;
+		private int itemCount = 0;
+		private int disappointedVisitors = 0;
+		private BigDecimal missedOpportunityTotal = BigDecimal.ZERO;
+		private long averageWaitTimeMillis = 0;
+		private long simulationTimeMillis = 0;
 	}
 
 	@PostMapping("/random")
 	public SimulationSummary simulate(int visitors, float conversionRate, int productViewsPerVisitor,
-			int maxWaitingTimeSeconds, int itemsPerOrder, BigDecimal maxBudgetPerVisitor) {
+			int maxWaitingTimeMillis, int itemsPerOrder, BigDecimal maxBudgetPerVisitor) {
 
+		long simulationStartTime = System.currentTimeMillis();
 		var simulationSummary = new SimulationSummary();
 
 		if (visitors < 0 ||
 				conversionRate < 0 || conversionRate > 1 ||
 				productViewsPerVisitor < 0 || productViewsPerVisitor < itemsPerOrder ||
-				maxWaitingTimeSeconds < 0 ||
+				maxWaitingTimeMillis < 0 ||
 				itemsPerOrder <= 0 ||
 				maxBudgetPerVisitor.compareTo(BigDecimal.ZERO) < 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 		}
 
-		long processingStartTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 
 		for (int i = 0; i < visitors; i++) {
 			var visited = new ArrayList<Product>();
 			boolean leaveTheStoreDisappointed = false;
 
 			for (int j = 0; j < productViewsPerVisitor; j++) {
-				long startTime = System.currentTimeMillis();
 				Product product = productsService.find();
 				long endTime = System.currentTimeMillis();
-				long waitInSeconds = (endTime - startTime) / 1000;
-				if (waitInSeconds > maxWaitingTimeSeconds) {
+				long waitInMillis = (endTime - startTime);
+				if (waitInMillis > maxWaitingTimeMillis) {
 					leaveTheStoreDisappointed = true;
 					break;
 				} else {
@@ -75,12 +77,20 @@ public class OrdersService {
 				}
 			}
 
+			long endTime = System.currentTimeMillis();
+			long waitInMillis = endTime - startTime;
+			simulationSummary.setAverageWaitTimeMillis((long) (simulationSummary.getAverageWaitTimeMillis() + (double)(waitInMillis / visitors)));
+
+			boolean visitorConverted = random.nextDouble() <= conversionRate;
+
 			if (leaveTheStoreDisappointed) {
 				simulationSummary.setDisappointedVisitors(simulationSummary.getDisappointedVisitors() + 1);
+				if (visitorConverted) {
+					simulationSummary.setMissedOpportunityTotal(
+							simulationSummary.getMissedOpportunityTotal().add(maxBudgetPerVisitor));
+				}
 				continue; // with the next visitor
-			}
-
-			if (random.nextDouble() <= conversionRate) {
+			} else if (visitorConverted) {
 				var itemsToBuy = new HashSet<Product>();
 				var moneyLeft = maxBudgetPerVisitor;
 				for (int k = 0; k < visited.size() && itemsToBuy.size() < itemsPerOrder; k++) {
@@ -100,9 +110,9 @@ public class OrdersService {
 				}
 			}
 
-			long processingEndTime = System.currentTimeMillis();
-			long processingTime = (processingEndTime - processingStartTime);
-			simulationSummary.setProcessingTimeMillis(processingTime);
+			long simulationEndTime = System.currentTimeMillis();
+			long simulationTime = (simulationEndTime - simulationStartTime);
+			simulationSummary.setSimulationTimeMillis(simulationTime);
 		}
 
 		return simulationSummary;

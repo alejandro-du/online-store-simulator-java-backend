@@ -11,13 +11,13 @@ POST http://localhost:8080/api/products/demo/?count=1000&minPrice=50&maxPrice=10
 GET http://localhost:8080/api/products/random/
 
 ### Generate 1 random order with 1 product
-POST http://localhost:8080/api/orders/random/?visitors=1&conversionRate=1&productViewsPerVisitor=12&maxWaitingTimeSeconds=10&itemsPerOrder=1&maxBudgetPerVisitor=1000
+POST http://localhost:8080/api/orders/random/?visitors=1&conversionRate=1&productViewsPerVisitor=10&maxWaitingTimeMillis=5&itemsPerOrder=1&maxBudgetPerVisitor=1000
 
 ### Generate random orders
-POST http://localhost:8080/api/orders/random/?visitors=50&conversionRate=0.01&productViewsPerVisitor=15&maxWaitingTimeSeconds=10&itemsPerOrder=2&maxBudgetPerVisitor=1000
+POST http://localhost:8080/api/orders/random/?visitors=10&conversionRate=0.02&productViewsPerVisitor=10&maxWaitingTimeMillis=5&itemsPerOrder=2&maxBudgetPerVisitor=1000
 
 ### Black Friday!
-POST http://localhost:8080/api/orders/random/?visitors=1000&conversionRate=0.01&productViewsPerVisitor=20&maxWaitingTimeSeconds=10&itemsPerOrder=3&maxBudgetPerVisitor=1000
+POST http://localhost:8080/api/orders/random/?visitors=1000&conversionRate=0.04&productViewsPerVisitor=15&maxWaitingTimeMillis=5&itemsPerOrder=3&maxBudgetPerVisitor=1000
 
 ### Get total sales in period
 GET http://localhost:8080/api/orders/total/?start=2022-08-10 17:00:00&end=2023-08-10 17:30:07
