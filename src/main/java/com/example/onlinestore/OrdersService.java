@@ -40,6 +40,7 @@ public class OrdersService {
 		private int disappointedVisitors = 0;
 		private BigDecimal missedOpportunityTotal = BigDecimal.ZERO;
 		private long averageWaitTimeMillis = 0;
+		private long maxWaitTimeMillis = 0;
 		private long simulationTimeMillis = 0;
 	}
 
@@ -80,6 +81,9 @@ public class OrdersService {
 			long endTime = System.currentTimeMillis();
 			long waitInMillis = endTime - startTime;
 			simulationSummary.setAverageWaitTimeMillis((long) (simulationSummary.getAverageWaitTimeMillis() + (double)(waitInMillis / visitors)));
+			if(waitInMillis > simulationSummary.getMaxWaitTimeMillis()) {
+				simulationSummary.setMaxWaitTimeMillis(waitInMillis);
+			}
 
 			boolean visitorConverted = random.nextDouble() <= conversionRate;
 
