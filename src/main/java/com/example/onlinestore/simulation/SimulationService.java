@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.onlinestore.orders.OrdersService;
+import com.example.onlinestore.products.Product;
 import com.example.onlinestore.products.ProductsService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class SimulationService {
 
 	@GetMapping(value = "/views", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<Long> views(int count, int intervalSeconds, int timeoutMillis) {
-		Flux<Object> views = Flux.range(0, count)
+		Flux<Product> views = Flux.range(0, count)
 				.flatMap(productNumber -> productsService.findRandomProduct());
 
 		return Flux.interval(Duration.ofSeconds(intervalSeconds))
@@ -37,14 +38,14 @@ public class SimulationService {
 
 	@GetMapping(value = "/orders", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<Long> orders(int count, int itemsPerOrder, int intervalSeconds, int timeoutMillis) {
-		Flux<Object> orders = Flux.range(0, count)
+		Flux<Long> orders = Flux.range(0, count)
 				.flatMap(orderNumber -> ordersService.saveRandom(itemsPerOrder));
 
 		return Flux.interval(Duration.ofSeconds(intervalSeconds))
 				.flatMap(l -> timeCounter(orders, timeoutMillis));
 	}
 
-	private Mono<Long> timeCounter(Flux<Object> flux, int timeout) {
+	private Mono<Long> timeCounter(Flux<?> flux, int timeout) {
 		return flux
 				.timeout(Duration.ofSeconds(timeout))
 				.elapsed()
