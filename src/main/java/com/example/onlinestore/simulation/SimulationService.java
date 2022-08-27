@@ -50,7 +50,7 @@ public class SimulationService {
 				.elapsed()
 				.map(Tuple2::getT1)
 				.reduce((initial, accumulator) -> accumulator += initial)
-				.onErrorReturn(-1l);
+				.onErrorReturn(null);
 	}
 
 }

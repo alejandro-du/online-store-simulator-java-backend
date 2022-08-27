@@ -12,8 +12,8 @@ import reactor.core.publisher.Mono;
 public interface ProductsRepository {
 
 	@Insert("""
-			INSERT INTO product(name, description, cost)
-			VALUES(#{name}, #{description}, #{cost})
+			INSERT INTO product(name, cost)
+			VALUES(#{name}, #{cost})
 			""")
 	@Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
 	Mono<Long> save(Product product);

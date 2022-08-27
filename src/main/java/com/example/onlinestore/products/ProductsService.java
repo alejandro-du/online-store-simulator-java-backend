@@ -36,10 +36,7 @@ public class ProductsService {
 						null,
 						faker.book().title() + " " + faker.number().numberBetween(Integer.MIN_VALUE, Integer.MAX_VALUE),
 						new BigDecimal(faker.random().nextInt(minPrice, maxPrice))))
-				.map(product -> {
-					productsRepository.save(product);
-					return product;
-				});
+				.flatMap(product -> productsRepository.save(product).flatMap(id -> Mono.just(product)));
 	}
 
 	@GetMapping(value = "")
