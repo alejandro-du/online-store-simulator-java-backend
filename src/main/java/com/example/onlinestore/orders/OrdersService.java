@@ -21,7 +21,7 @@ public class OrdersService {
 
 	private final OrdersRepository ordersRepository;
 
-	@PostMapping("/")
+	@PostMapping("")
 	@Transactional
 	public Mono<Long> saveRandom(int itemCount) {
 		Order order = new Order(null, LocalDateTime.now());
@@ -29,7 +29,7 @@ public class OrdersService {
 				.flatMap(count -> ordersRepository.saveRandomItems(order.getId(), itemCount));
 	}
 
-	@DeleteMapping("/")
+	@DeleteMapping("")
 	public Mono<Long> deleteAll() {
 		return ordersRepository.deleteAll();
 	}

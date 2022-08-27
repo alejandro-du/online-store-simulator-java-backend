@@ -1,5 +1,5 @@
 ### Delete all orders
-DELETE http://localhost:8080/api/orders/
+DELETE http://localhost:8080/api/orders
 
 ### Delete all products
 DELETE http://localhost:8080/api/products/

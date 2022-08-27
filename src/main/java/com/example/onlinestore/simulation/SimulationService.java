@@ -27,21 +27,21 @@ public class SimulationService {
 	private final OrdersService ordersService;
 
 	@GetMapping(value = "/views", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<Long> views(int productViews, int intervalSeconds) {
-		Flux<Object> views = Flux.range(0, productViews)
+	public Flux<Long> views(int count, int intervalSeconds, int timeoutMillis) {
+		Flux<Object> views = Flux.range(0, count)
 				.flatMap(productNumber -> productsService.findRandomProduct());
 
 		return Flux.interval(Duration.ofSeconds(intervalSeconds))
-				.flatMap(l -> timeCounter(views, intervalSeconds));
+				.flatMap(l -> timeCounter(views, timeoutMillis));
 	}
 
 	@GetMapping(value = "/orders", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<Long> orders(int orderCount, int itemCount, int intervalSeconds) {
-		Flux<Object> orders = Flux.range(0, orderCount)
-				.flatMap(orderNumber -> ordersService.saveRandom(itemCount));
+	public Flux<Long> orders(int count, int itemsPerOrder, int intervalSeconds, int timeoutMillis) {
+		Flux<Object> orders = Flux.range(0, count)
+				.flatMap(orderNumber -> ordersService.saveRandom(itemsPerOrder));
 
 		return Flux.interval(Duration.ofSeconds(intervalSeconds))
-				.flatMap(l -> timeCounter(orders, intervalSeconds));
+				.flatMap(l -> timeCounter(orders, timeoutMillis));
 	}
 
 	private Mono<Long> timeCounter(Flux<Object> flux, int timeout) {

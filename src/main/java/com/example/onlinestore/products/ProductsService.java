@@ -42,12 +42,12 @@ public class ProductsService {
 				});
 	}
 
-	@GetMapping(value = "/")
+	@GetMapping(value = "")
 	public Mono<Product> findRandomProduct() {
 		return productsRepository.findRandom();
 	}
 
-	@DeleteMapping("/")
+	@DeleteMapping("")
 	public Mono<Long> deleteAll() {
 		return productsRepository.deleteAll();
 	}
