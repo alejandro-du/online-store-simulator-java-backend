@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.onlinestore.orders.OrdersService;
-import com.example.onlinestore.products.Product;
 import com.example.onlinestore.products.ProductsService;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 @RestController
@@ -24,34 +24,40 @@ import reactor.util.function.Tuple2;
 @RequiredArgsConstructor
 public class SimulationService {
 
+	@Data
+	@AllArgsConstructor
+	public static class SimulationResult {
+		private long time;
+		private boolean timedOut;
+	}
+
 	private final ProductsService productsService;
 	private final OrdersService ordersService;
 
 	@GetMapping(value = "/views", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<Long> views(int count, int intervalSeconds, int timeoutMillis) {
-		Flux<Product> views = Flux.range(0, count)
-				.flatMap(productNumber -> productsService.findRandomProduct());
-
+	public Flux<SimulationResult> views(int count, int intervalSeconds, int timeoutMillis) {
 		return Flux.interval(Duration.ofSeconds(intervalSeconds))
-				.flatMap(l -> timeCounter(views, timeoutMillis));
+				.flatMap(intervalNumber -> Flux.range(0, count)
+						.flatMap(productNumber -> productsService.findRandom())
+						.elapsed()
+						.map(Tuple2::getT1)
+						.reduce(Math::max)
+						.map(time -> new SimulationResult(time, false))
+						.timeout(Duration.ofSeconds(timeoutMillis))
+						.onErrorReturn(new SimulationResult(timeoutMillis, true)));
 	}
 
 	@GetMapping(value = "/orders", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<Long> orders(int count, int itemsPerOrder, int intervalSeconds, int timeoutMillis) {
-		Flux<Long> orders = Flux.range(0, count)
-				.flatMap(orderNumber -> ordersService.saveRandom(itemsPerOrder));
-
+	public Flux<SimulationResult> orders(int count, int itemsPerOrder, int intervalSeconds, int timeoutMillis) {
 		return Flux.interval(Duration.ofSeconds(intervalSeconds))
-				.flatMap(l -> timeCounter(orders, timeoutMillis));
-	}
-
-	private Mono<Long> timeCounter(Flux<?> flux, int timeout) {
-		return flux
-				.timeout(Duration.ofSeconds(timeout))
-				.elapsed()
-				.map(Tuple2::getT1)
-				.reduce((initial, accumulator) -> accumulator += initial)
-				.onErrorReturn(null);
+				.flatMap(intervalNumber -> Flux.range(0, count)
+						.flatMap(orderNumber -> ordersService.saveRandom(itemsPerOrder))
+						.elapsed()
+						.map(Tuple2::getT1)
+						.reduce(Math::max)
+						.map(time -> new SimulationResult(time, false))
+						.timeout(Duration.ofMillis(timeoutMillis))
+						.onErrorReturn(new SimulationResult(timeoutMillis, true)));
 	}
 
 }

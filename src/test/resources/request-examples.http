@@ -1,27 +1,17 @@
 ### Delete all orders
-DELETE http://localhost:8080/api/orders
+GET http://localhost:8080/api/orders/deleteAll
 
 ### Delete all products
-DELETE http://localhost:8080/api/products
+GET http://localhost:8080/api/products/deleteAll
 
 ### Generate random products
-POST http://localhost:8080/api/products/demo
-	?count=1000
-	&minPrice=50
-	&maxPrice=1000
+GET http://localhost:8080/api/products/createDemoData?count=1000&minPrice=5&maxPrice=3000
 
 ### Get random product
-GET http://localhost:8080/api/products
+GET http://localhost:8080/api/products/findRandom
 
-### Views
-GET http://localhost:8080/api/views
-	?count=5
-	&intervalSeconds=1
-	&timeoutMillis=1000
+### Simulate product views
+GET http://localhost:8080/api/simulation/views?count=5&intervalSeconds=1&timeoutMillis=100
 
-### Orders
-GET http://localhost:8080/api/orders
-	?count=1
-	&itemsPerOrder=2
-	&intervalSeconds=1
-	&timeoutMillis=1000
+### Simulate orders
+GET http://localhost:8080/api/simulation/orders?count=1&itemsPerOrder=2&intervalSeconds=1&timeoutMillis=100
