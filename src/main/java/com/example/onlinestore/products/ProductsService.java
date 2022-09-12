@@ -44,4 +44,9 @@ public class ProductsService {
 		return productsRepository.deleteAll();
 	}
 
+	@RequestMapping(value = "/count", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Mono<Long> count() {
+		return productsRepository.count();
+	}
+
 }

@@ -33,4 +33,9 @@ public class OrdersService {
 		return ordersRepository.deleteAll();
 	}
 
+	@RequestMapping(value = "/count", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Mono<Long> count() {
+		return ordersRepository.count();
+	}
+
 }

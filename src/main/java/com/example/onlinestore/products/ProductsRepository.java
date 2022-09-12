@@ -29,4 +29,7 @@ public interface ProductsRepository {
 	@Delete("DELETE FROM product")
 	Mono<Long> deleteAll();
 
+	@Select("SELECT COUNT(id) FROM product")
+	Mono<Long> count();
+
 }

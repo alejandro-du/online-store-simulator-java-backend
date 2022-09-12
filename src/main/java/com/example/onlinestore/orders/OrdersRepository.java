@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Select;
 
 import reactor.core.publisher.Mono;
 
@@ -25,5 +26,8 @@ public interface OrdersRepository {
 
 	@Delete("DELETE FROM order_")
 	Mono<Long> deleteAll();
+
+	@Select("SELECT COUNT(id) FROM order_")
+	Mono<Long> count();
 
 }

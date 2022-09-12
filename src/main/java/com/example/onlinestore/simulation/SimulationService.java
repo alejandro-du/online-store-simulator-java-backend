@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 @RestController
@@ -28,7 +29,6 @@ public class SimulationService {
 	@AllArgsConstructor
 	public static class SimulationResult {
 		private long time;
-		private boolean timedOut;
 	}
 
 	private final ProductsService productsService;
@@ -42,9 +42,8 @@ public class SimulationService {
 						.elapsed()
 						.map(Tuple2::getT1)
 						.reduce(Math::max)
-						.map(time -> new SimulationResult(time, false))
-						.timeout(Duration.ofSeconds(timeoutMillis))
-						.onErrorReturn(new SimulationResult(timeoutMillis, true)));
+						.map(SimulationResult::new)
+						.timeout(Duration.ofMillis(timeoutMillis), Mono.just(new SimulationResult(-1))));
 	}
 
 	@GetMapping(value = "/orders", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -55,9 +54,8 @@ public class SimulationService {
 						.elapsed()
 						.map(Tuple2::getT1)
 						.reduce(Math::max)
-						.map(time -> new SimulationResult(time, false))
-						.timeout(Duration.ofMillis(timeoutMillis))
-						.onErrorReturn(new SimulationResult(timeoutMillis, true)));
+						.map(SimulationResult::new)
+						.timeout(Duration.ofMillis(timeoutMillis), Mono.just(new SimulationResult(-1))));
 	}
 
 }
