@@ -1,7 +1,9 @@
 package com.example.onlinestore.simulation;
 
 import java.time.Duration;
+import java.util.function.Function;
 
+import org.reactivestreams.Publisher;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,27 +37,41 @@ public class SimulationService {
 	private final OrdersService ordersService;
 
 	@GetMapping(value = "/views", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<SimulationResult> views(int count, int intervalSeconds, int timeoutMillis) {
-		return Flux.interval(Duration.ofSeconds(intervalSeconds))
-				.flatMap(intervalNumber -> Flux.range(0, count)
-						.flatMap(productNumber -> productsService.findRandom())
-						.elapsed()
-						.map(Tuple2::getT1)
-						.reduce(Math::max)
-						.map(SimulationResult::new)
-						.timeout(Duration.ofMillis(timeoutMillis), Mono.just(new SimulationResult(-1))));
+	public Flux<SimulationResult> views(int viewsPerMinute, int timeoutMillis) {
+		return Flux.interval(Duration.ofSeconds(1))
+				.flatMap(intervalNumber -> getFlux(viewsPerMinute, timeoutMillis, i -> productsService.findRandom()));
 	}
 
 	@GetMapping(value = "/orders", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<SimulationResult> orders(int count, int itemsPerOrder, int intervalSeconds, int timeoutMillis) {
-		return Flux.interval(Duration.ofSeconds(intervalSeconds))
-				.flatMap(intervalNumber -> Flux.range(0, count)
-						.flatMap(orderNumber -> ordersService.saveRandom(itemsPerOrder))
-						.elapsed()
-						.map(Tuple2::getT1)
-						.reduce(Math::max)
-						.map(SimulationResult::new)
-						.timeout(Duration.ofMillis(timeoutMillis), Mono.just(new SimulationResult(-1))));
+	public Flux<SimulationResult> orders(int ordersPerMinute, int itemsPerOrder, int timeoutMillis) {
+		return Flux.interval(Duration.ofSeconds(1))
+				.flatMap(intervalNumber -> getFlux(ordersPerMinute, timeoutMillis,
+						i -> ordersService.saveRandom(itemsPerOrder)));
+	}
+
+	private Mono<SimulationResult> getFlux(int countPerMinute, int timeoutMillis,
+			Function<Integer, Publisher<?>> mapper) {
+		double ratePerSecond = countPerMinute / 60d;
+		Flux<?> flux;
+
+		if (ratePerSecond < 1) {
+			if (Math.random() < ratePerSecond) {
+				flux = Flux.range(0, 1)
+						.flatMap(mapper);
+			} else {
+				flux = Flux.range(0, 1);
+			}
+		} else {
+			flux = Flux.range(0, (int) ratePerSecond)
+					.flatMap(mapper);
+		}
+
+		return flux
+				.elapsed()
+				.map(Tuple2::getT1)
+				.reduce(Math::max)
+				.map(SimulationResult::new)
+				.timeout(Duration.ofMillis(timeoutMillis), Mono.just(new SimulationResult(-1)));
 	}
 
 }
