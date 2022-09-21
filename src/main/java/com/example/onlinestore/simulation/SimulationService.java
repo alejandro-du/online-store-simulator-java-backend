@@ -50,23 +50,22 @@ public class SimulationService {
 	}
 
 	private Mono<SimulationResult> getFlux(int countPerMinute, int timeoutMillis,
-			Function<Integer, Publisher<?>> mapper) {
-		double ratePerSecond = countPerMinute / 60d;
-		Flux<?> flux;
+			Function<Integer, Publisher<?>> dbOperation) {
+		double countPerSecond = countPerMinute / 60d;
+		int count;
 
-		if (ratePerSecond < 1) {
-			if (Math.random() < ratePerSecond) {
-				flux = Flux.range(0, 1)
-						.flatMap(mapper);
-			} else {
-				flux = Flux.range(0, 1);
+		if (countPerSecond < 1) {
+			count = 1;
+			boolean generateEvent = Math.random() < countPerSecond;
+			if (!generateEvent) {
+				dbOperation = i -> Mono.just(1);
 			}
 		} else {
-			flux = Flux.range(0, (int) ratePerSecond)
-					.flatMap(mapper);
+			count = (int) countPerSecond;
 		}
 
-		return flux
+		return Flux.range(0, count)
+				.flatMap(dbOperation)
 				.elapsed()
 				.map(Tuple2::getT1)
 				.reduce(Math::max)
