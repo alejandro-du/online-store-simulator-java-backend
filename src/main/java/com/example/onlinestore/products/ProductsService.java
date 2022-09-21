@@ -2,13 +2,13 @@ package com.example.onlinestore.products;
 
 import java.math.BigDecimal;
 
+import com.github.javafaker.Faker;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.github.javafaker.Faker;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -20,9 +20,9 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ProductsService {
 
-	private final ProductsRepository productsRepository;
-
 	private static final Faker faker = new Faker();
+
+	private final ProductsRepository productsRepository;
 
 	@RequestMapping(value = "/createDemoData", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<Product> createDemoData(int count, int minPrice, int maxPrice) {
@@ -40,7 +40,7 @@ public class ProductsService {
 	}
 
 	@RequestMapping(value = "/deleteAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Mono<Long> deleteAll() {
+	public Mono<Void> deleteAll() {
 		return productsRepository.deleteAll();
 	}
 

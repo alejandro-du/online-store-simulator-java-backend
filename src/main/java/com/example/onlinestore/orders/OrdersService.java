@@ -29,7 +29,7 @@ public class OrdersService {
 	}
 
 	@RequestMapping(value = "/deleteAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Mono<Long> deleteAll() {
+	public Mono<Void> deleteAll() {
 		return ordersRepository.deleteAll();
 	}
 

@@ -1,33 +1,19 @@
 package com.example.onlinestore.orders;
 
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
 
 import reactor.core.publisher.Mono;
 
-@Mapper
-public interface OrdersRepository {
+public interface OrdersRepository extends R2dbcRepository<Order, Long> {
 
-	@Insert("INSERT INTO order_(time) VALUES(#{time})")
-	@Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
-	Mono<Long> save(Order order);
-
-	@Insert("""
+	@Query("""
 			INSERT INTO order_item(order_id, product_id)
-				SELECT #{orderId}, id
+				SELECT :orderId, id
 				FROM product
 				ORDER BY RAND()
-				LIMIT #{count}
+				LIMIT :count
 			""")
 	Mono<Long> saveRandomItems(Long orderId, int count);
-
-	@Delete("DELETE FROM order_")
-	Mono<Long> deleteAll();
-
-	@Select("SELECT COUNT(id) FROM order_")
-	Mono<Long> count();
 
 }
