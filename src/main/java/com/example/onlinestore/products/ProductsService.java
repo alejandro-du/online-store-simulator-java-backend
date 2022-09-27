@@ -31,7 +31,7 @@ public class ProductsService {
 						null,
 						faker.book().title() + " " + faker.number().numberBetween(Integer.MIN_VALUE, Integer.MAX_VALUE),
 						new BigDecimal(faker.random().nextInt(minPrice, maxPrice))))
-				.flatMap(product -> productsRepository.save(product).flatMap(id -> Mono.just(product)));
+				.flatMap(productsRepository::save);
 	}
 
 	@RequestMapping(value = "/findRandom", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -40,8 +40,9 @@ public class ProductsService {
 	}
 
 	@RequestMapping(value = "/deleteAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Mono<Void> deleteAll() {
-		return productsRepository.deleteAll();
+	public Mono<Boolean> deleteAll() {
+		return productsRepository.deleteAll()
+				.then(Mono.just(true));
 	}
 
 	@RequestMapping(value = "/count", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

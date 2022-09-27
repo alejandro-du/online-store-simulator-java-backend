@@ -29,8 +29,9 @@ public class OrdersService {
 	}
 
 	@RequestMapping(value = "/deleteAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Mono<Void> deleteAll() {
-		return ordersRepository.deleteAll();
+	public Mono<Boolean> deleteAll() {
+		return ordersRepository.deleteAll()
+				.then(Mono.just(true));
 	}
 
 	@RequestMapping(value = "/count", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
