@@ -22,10 +22,10 @@ public class OrdersService {
 
 	@RequestMapping(value = "/saveRandom", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	@Transactional
-	public Mono<Long> saveRandom(int itemCount) {
+	public Mono<Object> saveRandom(int itemCount) {
 		Order order = new Order(null, LocalDateTime.now());
 		return ordersRepository.save(order)
-				.flatMap(count -> ordersRepository.saveRandomItems(order.getId(), itemCount));
+				.map(count -> ordersRepository.saveRandomItems(order.getId(), itemCount));
 	}
 
 	@RequestMapping(value = "/deleteAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
