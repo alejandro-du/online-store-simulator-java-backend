@@ -48,10 +48,10 @@ public class SimulationService {
 				.flatMap(intervalNumber -> productsService.count());
 	}
 
-	@GetMapping(value = "/views", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<SimulationResult> views(int viewsPerMinute, int timeoutMillis) {
+	@GetMapping(value = "/visits", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<SimulationResult> visits(int productVisitsPerMinute, int timeoutMillis) {
 		return Flux.interval(Duration.ofSeconds(1))
-				.flatMap(intervalNumber -> getFlux(viewsPerMinute, timeoutMillis, i -> productsService.findRandom()));
+				.flatMap(intervalNumber -> getFlux(productVisitsPerMinute, timeoutMillis, i -> productsService.findRandom()));
 	}
 
 	@GetMapping(value = "/orders", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
