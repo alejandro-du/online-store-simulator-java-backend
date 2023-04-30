@@ -1,5 +1,6 @@
 package com.example.onlinestore.orders;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 import org.springframework.http.MediaType;
@@ -25,7 +26,7 @@ public class OrdersService {
 	public Mono<Order> saveRandom(int itemCount) {
 		Order order = new Order(null, LocalDateTime.now());
 		return ordersRepository.save(order)
-				.doOnNext(count -> ordersRepository.saveRandomItems(order.getId(), itemCount));
+				.doOnNext(count -> ordersRepository.saveRandomItems(order.getId(), itemCount).subscribe());
 	}
 
 	@RequestMapping(value = "/deleteAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -36,7 +37,7 @@ public class OrdersService {
 
 	@RequestMapping(value = "/count", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Mono<Long> count() {
-		return ordersRepository.count();
+		return ordersRepository.count().timeout(Duration.ofSeconds(1)).onErrorResume(e -> Mono.empty());
 	}
 
 }

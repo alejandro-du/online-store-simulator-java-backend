@@ -1,6 +1,7 @@
 package com.example.onlinestore.products;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 
 import com.github.javafaker.Faker;
 
@@ -47,7 +48,7 @@ public class ProductsService {
 
 	@RequestMapping(value = "/count", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Mono<Long> count() {
-		return productsRepository.count();
+		return productsRepository.count().onErrorResume(e -> Mono.empty());
 	}
 
 }
