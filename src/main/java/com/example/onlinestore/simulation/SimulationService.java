@@ -3,6 +3,9 @@ package com.example.onlinestore.simulation;
 import java.time.Duration;
 import java.util.function.Function;
 
+import com.example.onlinestore.orders.OrdersService;
+import com.example.onlinestore.products.ProductsService;
+
 import org.reactivestreams.Publisher;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -10,9 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.example.onlinestore.orders.OrdersService;
-import com.example.onlinestore.products.ProductsService;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,6 +35,18 @@ public class SimulationService {
 
 	private final ProductsService productsService;
 	private final OrdersService ordersService;
+
+	@GetMapping(value = "/orderCount")
+	public Flux<Long> orderCount() {
+		return Flux.interval(Duration.ofSeconds(1))
+				.flatMap(intervalNumber -> ordersService.count());
+	}
+
+	@GetMapping(value = "/productCount")
+	public Flux<Long> productCount() {
+		return Flux.interval(Duration.ofSeconds(1))
+				.flatMap(intervalNumber -> productsService.count());
+	}
 
 	@GetMapping(value = "/views", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<SimulationResult> views(int viewsPerMinute, int timeoutMillis) {
@@ -70,7 +82,7 @@ public class SimulationService {
 				.map(Tuple2::getT1)
 				.reduce(Math::max)
 				.map(SimulationResult::new)
-				.timeout(Duration.ofMillis(timeoutMillis), Mono.just(new SimulationResult(-1)));
+				.timeout(Duration.ofMillis(timeoutMillis), Mono.just(new SimulationResult(-count)));
 	}
 
 }

@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Table("order_")
+@Table("orders")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

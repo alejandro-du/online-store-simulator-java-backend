@@ -9,7 +9,7 @@ public interface ProductsRepository extends R2dbcRepository<Product, Integer> {
 
 	@Query("""
 			SELECT id, name, cost
-			FROM product
+			FROM products
 			ORDER BY RAND()
 			LIMIT 1
 			""")

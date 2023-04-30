@@ -10,7 +10,7 @@ public interface OrdersRepository extends R2dbcRepository<Order, Long> {
 	@Query("""
 			INSERT INTO order_item(order_id, product_id)
 				SELECT :orderId, id
-				FROM product
+				FROM products
 				ORDER BY RAND()
 				LIMIT :count
 			""")
