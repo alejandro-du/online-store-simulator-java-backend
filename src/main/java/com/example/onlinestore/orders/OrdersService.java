@@ -37,7 +37,9 @@ public class OrdersService {
 
 	@RequestMapping(value = "/count", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Mono<Long> count() {
-		return ordersRepository.count().timeout(Duration.ofSeconds(1)).onErrorResume(e -> Mono.empty());
+		return ordersRepository.count()
+				.timeout(Duration.ofSeconds(1))
+				.onErrorResume(e -> Mono.empty());
 	}
 
 }

@@ -51,7 +51,8 @@ public class SimulationService {
 	@GetMapping(value = "/visits", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<SimulationResult> visits(int productVisitsPerMinute, int timeoutMillis) {
 		return Flux.interval(Duration.ofSeconds(1))
-				.flatMap(intervalNumber -> getFlux(productVisitsPerMinute, timeoutMillis, i -> productsService.findRandom()));
+				.flatMap(intervalNumber -> getFlux(productVisitsPerMinute, timeoutMillis,
+						i -> productsService.findRandom()));
 	}
 
 	@GetMapping(value = "/orders", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -77,12 +78,14 @@ public class SimulationService {
 		}
 
 		return Flux.range(0, count)
+				.onBackpressureDrop()
 				.flatMap(dbOperation)
 				.elapsed()
 				.map(Tuple2::getT1)
 				.reduce(Math::max)
 				.map(SimulationResult::new)
-				.timeout(Duration.ofMillis(timeoutMillis), Mono.just(new SimulationResult(-count)));
+				.timeout(Duration.ofMillis(timeoutMillis), Mono.just(new SimulationResult(-count)))
+				.onErrorResume(e -> Mono.just(new SimulationResult(-count)));
 	}
 
 }
