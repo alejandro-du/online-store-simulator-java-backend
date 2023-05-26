@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,12 +21,15 @@ public class OrdersService {
 
 	private final OrdersRepository ordersRepository;
 
+	private final TransactionalOperator transactionalOperator;
+
 	@RequestMapping(value = "/saveRandom", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	@Transactional
 	public Mono<Order> saveRandom(int itemCount) {
-		Order order = new Order(null, LocalDateTime.now());
-		return ordersRepository.save(order)
-				.doOnNext(count -> ordersRepository.saveRandomItems(order.getId(), itemCount).subscribe());
+		return ordersRepository.save(new Order(null, LocalDateTime.now()))
+				.doOnNext(order -> ordersRepository.saveRandomItems(order.getId(), itemCount)
+						.retry(3)
+						.as(transactionalOperator::transactional)
+						.subscribe());
 	}
 
 	@RequestMapping(value = "/deleteAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
