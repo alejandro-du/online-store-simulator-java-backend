@@ -19,7 +19,6 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 @RestController
 @RequestMapping("/api/simulation")
@@ -31,6 +30,7 @@ public class SimulationService {
 	@AllArgsConstructor
 	public static class SimulationResult {
 		private long time;
+		private long count;
 	}
 
 	private final ProductsService productsService;
@@ -49,21 +49,18 @@ public class SimulationService {
 	}
 
 	@GetMapping(value = "/visits", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<SimulationResult> visits(int productVisitsPerMinute, int timeoutMillis) {
+	public Flux<SimulationResult> visits(int productVisitsPerMinute) {
 		return Flux.interval(Duration.ofSeconds(1))
-				.flatMap(intervalNumber -> getFlux(productVisitsPerMinute, timeoutMillis,
-						i -> productsService.findRandom()));
+				.flatMap(intervalNumber -> getFlux(productVisitsPerMinute, i -> productsService.findRandom()));
 	}
 
 	@GetMapping(value = "/orders", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<SimulationResult> orders(int ordersPerMinute, int itemsPerOrder, int timeoutMillis) {
+	public Flux<SimulationResult> orders(int ordersPerMinute, int itemsPerOrder) {
 		return Flux.interval(Duration.ofSeconds(1))
-				.flatMap(intervalNumber -> getFlux(ordersPerMinute, timeoutMillis,
-						i -> ordersService.saveRandom(itemsPerOrder)));
+				.flatMap(intervalNumber -> getFlux(ordersPerMinute, i -> ordersService.saveRandom(itemsPerOrder)));
 	}
 
-	private Mono<SimulationResult> getFlux(int countPerMinute, int timeoutMillis,
-			Function<Integer, Publisher<?>> dbOperation) {
+	private Mono<SimulationResult> getFlux(int countPerMinute, Function<Integer, Publisher<?>> dbOperation) {
 		double countPerSecond = countPerMinute / 60d;
 		int count;
 
@@ -80,12 +77,11 @@ public class SimulationService {
 		return Flux.range(0, count)
 				.onBackpressureDrop()
 				.flatMap(dbOperation)
+				.map(o -> 1l)
+				.reduce(0l, (n1, n2) -> n1 + n2)
 				.elapsed()
-				.map(Tuple2::getT1)
-				.reduce(Math::max)
-				.map(SimulationResult::new)
-				.timeout(Duration.ofMillis(timeoutMillis), Mono.just(new SimulationResult(-count)))
-				.onErrorResume(e -> Mono.just(new SimulationResult(-count)));
+				.map(tuple -> new SimulationResult(tuple.getT1(), tuple.getT2()))
+				.onErrorResume(e -> Mono.just(new SimulationResult(0, 0)));
 	}
 
 }

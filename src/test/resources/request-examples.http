@@ -11,7 +11,7 @@ GET http://localhost:8080/api/products/createDemoData?count=1000&minPrice=5&maxP
 GET http://localhost:8080/api/products/findRandom
 
 ### Simulate product views
-GET http://localhost:8080/api/simulation/views?count=5&intervalSeconds=1&timeoutMillis=100
+GET http://localhost:8080/api/simulation/views?count=5&intervalSeconds=1
 
 ### Simulate orders
-GET http://localhost:8080/api/simulation/orders?count=1&itemsPerOrder=2&intervalSeconds=1&timeoutMillis=100
+GET http://localhost:8080/api/simulation/orders?count=1&itemsPerOrder=2&intervalSeconds=1
