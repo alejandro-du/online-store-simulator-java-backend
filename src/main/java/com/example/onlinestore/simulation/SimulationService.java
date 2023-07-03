@@ -65,9 +65,11 @@ public class SimulationService {
 		int count;
 
 		if (countPerSecond < 1) {
-			count = 1;
 			boolean generateEvent = Math.random() < countPerSecond;
-			if (!generateEvent) {
+			if (generateEvent) {
+				count = 1;
+			} else {
+				count = 0;
 				dbOperation = i -> Mono.just(1);
 			}
 		} else {
