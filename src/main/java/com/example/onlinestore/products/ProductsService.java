@@ -3,8 +3,6 @@ package com.example.onlinestore.products;
 import java.math.BigDecimal;
 import java.time.Duration;
 
-import com.github.javafaker.Faker;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import net.datafaker.Faker;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,8 +24,8 @@ public class ProductsService {
 
 	private final ProductsRepository productsRepository;
 
-	@RequestMapping(value = "/createDemoData", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<Product> createDemoData(int count, int minPrice, int maxPrice) {
+	@RequestMapping(value = "/create", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<Product> create(int count, int minPrice, int maxPrice) {
 		return Flux.range(0, count)
 				.map(productNumber -> new Product(
 						null,
