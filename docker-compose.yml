@@ -1,6 +1,7 @@
 version: "3.9"
 services:
   server-1:
+    container_name: server-1
     image: alejandrodu/mariadb
     ports:
       - "3306:3306"
@@ -11,6 +12,7 @@ services:
       - MARIADB_CREATE_MAXSCALE_USER=maxscale_user:MaxScalePassword123!
 
   server-2:
+    container_name: server-2
     image: alejandrodu/mariadb
     ports:
       - "3307:3306"
@@ -18,6 +20,7 @@ services:
       - MARIADB_REPLICATE_FROM=replication_user:ReplicationPassword123!@server-1:3306
 
   server-3:
+    container_name: server-3
     image: alejandrodu/mariadb
     ports:
       - "3308:3306"
@@ -25,6 +28,7 @@ services:
       - MARIADB_REPLICATE_FROM=replication_user:ReplicationPassword123!@server-1:3306
 
   maxscale:
+    container_name: maxscale
     image: alejandrodu/mariadb-maxscale
     command: --admin_host 0.0.0.0 --admin_secure_gui false
     ports:
