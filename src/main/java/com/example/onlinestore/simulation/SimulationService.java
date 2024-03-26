@@ -79,8 +79,7 @@ public class SimulationService {
 		return Flux.range(0, count)
 				.onBackpressureDrop()
 				.flatMap(dbOperation)
-				.map(o -> 1l)
-				.reduce(0l, (n1, n2) -> n1 + n2)
+				.count()
 				.elapsed()
 				.map(tuple -> new SimulationResult(tuple.getT1(), tuple.getT2()))
 				.onErrorResume(e -> Mono.just(new SimulationResult(0, 0)));
