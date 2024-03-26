@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 public interface OrdersRepository extends R2dbcRepository<Order, Long> {
 
 	@Query("""
-			INSERT INTO order_item(order_id, product_id)
+			INSERT INTO order_product(order_id, product_id)
 				SELECT :orderId, id
 				FROM products
 				ORDER BY RAND()
